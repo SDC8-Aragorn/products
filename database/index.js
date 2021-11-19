@@ -29,7 +29,12 @@ const getStyles = async (id) => {
     return pgClient.query(`SELECT url, thumbnail_url FROM photos WHERE styleid = ${style.style_id}`)
   })
 
+  let skusQuery = styles.map(async style => {
+    return pgClient.query(`SELECT id AS sku, size, quantity FROM skus WHERE styleId = ${style.style_id}`)
+  })
+
   let photos = await Promise.all(photosQuery)
+  let skus = await Promise.all(skusQuery)
 
   styles.forEach((style, i) => {
     if (style.sale_price === null) {
@@ -41,6 +46,14 @@ const getStyles = async (id) => {
 
     style.original_price = style.original_price.toString()
     style.photos = photos[i].rows
+
+    let skuObj = {}
+    skus[i].rows.forEach(row => {
+      let skuNumber = row.sku
+      skuObj[skuNumber] = {size: row.size, quantity: row.quantity}
+    })
+
+    style.skus = skuObj
   })
 
   return {product_id: id, results: styles}
