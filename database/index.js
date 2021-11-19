@@ -5,14 +5,14 @@ pgClient.connect();
 
 const getProducts = async () => {
   return pgClient
-    .query("SELECT * from product LIMIT 10")
-    .then(res => res.rows)
+    .query("SELECT * from product LIMIT 5")
+    .then(result => result.rows)
     .catch(e => console.error(e.stack))
 }
 
 const getProduct = async (id) => {
 
-  let queryOne = await pgClient.query(`SELECT * from product WHERE id = ${id}`)
+  let queryOne = await pgClient.query(`SELECT * FROM product WHERE id = ${id}`)
   let queryTwo = await pgClient.query(`SELECT feature, value FROM features WHERE product_id = ${id}`)
 
   let resultOne = await queryOne.rows
@@ -21,24 +21,33 @@ const getProduct = async (id) => {
   return [resultOne, resultTwo]
 }
 
-
-// const getProduct = async (id) => {
-
-//   return pgClient
-//     .query(`SELECT * from product WHERE id = ${id}`)
-//     .then(res => res.rows)
-//     .catch(e => console.error(e.stack))
-// }
-
-
 const getStyles = async (id) => {
-  return pgClient
-  .query(`SELECT * from product WHERE id = ${id}`)
-  .then(res => res.rows)
-  .catch(e => console.error(e.stack))
+  let stylesQuery = await pgClient.query(`SELECT id AS style_id, name, original_price, sale_price, default_style AS "default?" FROM styles WHERE productId = ${id}`)
+  let styles = await stylesQuery.rows
+
+  let photosQuery = styles.map(async style => {
+    return pgClient.query(`SELECT url, thumbnail_url FROM photos WHERE styleid = ${style.style_id}`)
+  })
+
+  let photos = await Promise.all(photosQuery)
+
+  styles.forEach((style, i) => {
+    if (style.sale_price === null) {
+      style.sale_price = '0'
+    }
+    if(style['default?'] === 1) {
+      style['default?'] = true
+    } else style['default?'] = false
+
+    style.original_price = style.original_price.toString()
+    style.photos = photos[i].rows
+  })
+
+  return {product_id: id, results: styles}
 }
 
 module.exports = {
   getProducts,
-  getProduct
+  getProduct,
+  getStyles
 }

@@ -10,7 +10,7 @@ CREATE TABLE product (
 );
 
 CREATE TABLE photos (
-  id INTEGER PRIMARY KEY,
+  id INTEGER,
   styleId INTEGER,
   url TEXT,
   thumbnail_url TEXT
@@ -34,4 +34,13 @@ CREATE TABLE skus (
   styleId INTEGER,
   size VARCHAR(9),
   quantity INTEGER
+);
+
+CREATE TABLE styles (
+  id INTEGER,
+  productId INTEGER,
+  name VARCHAR(50),
+  sale_price INTEGER,
+  original_price INTEGER,
+  default_style INTEGER
 );

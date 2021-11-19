@@ -27,13 +27,12 @@ app.get('/products/:product_id', function (req, res) {
   })
 })
 
-//STYLES
-// app.get('/products/:product_id/styles', function (req, res) {
-//   db.getStyles(req.params.product_id)
-//   .then (result => {
-//     res.json(result)
-//   })
-// })
+app.get('/products/:product_id/styles', function (req, res) {
+  db.getStyles(req.params.product_id)
+  .then(result => {
+    res.json(result)
+  })
+})
 
 
 app.listen(PORT, ()=> {
