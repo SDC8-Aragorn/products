@@ -34,6 +34,12 @@ app.get('/products/:product_id/styles', function (req, res) {
   })
 })
 
+app.get('/products/:product_id/related', function (req, res) {
+  db.getRelated(req.params.product_id)
+  .then(result => {
+    res.json(result)
+  })
+})
 
 app.listen(PORT, ()=> {
   console.log(`Server listening on port: ${PORT}`)

@@ -21,16 +21,19 @@ const getProduct = async (id) => {
   return [resultOne, resultTwo]
 }
 
+
+
 const getStyles = async (id) => {
-  let stylesQuery = await pgClient.query(`SELECT id AS style_id, name, original_price, sale_price, default_style AS "default?" FROM styles WHERE productId = ${id}`)
+
+  let stylesQuery = await pgClient.query(`SELECT id AS style_id, name, original_price, sale_price, default_style AS "default?" FROM styles WHERE productId IN ('${id}')`)
   let styles = await stylesQuery.rows
 
   let photosQuery = styles.map(async style => {
-    return pgClient.query(`SELECT url, thumbnail_url FROM photos WHERE styleid = ${style.style_id}`)
+    return pgClient.query(`SELECT url, thumbnail_url FROM photos WHERE styleid IN ('${style.style_id}')`)
   })
 
   let skusQuery = styles.map(async style => {
-    return pgClient.query(`SELECT id AS sku, size, quantity FROM skus WHERE styleId = ${style.style_id}`)
+    return pgClient.query(`SELECT id AS sku, size, quantity FROM skus WHERE styleId IN ('${style.style_id}')`)
   })
 
   let photos = await Promise.all(photosQuery)
@@ -52,15 +55,24 @@ const getStyles = async (id) => {
       let skuNumber = row.sku
       skuObj[skuNumber] = {size: row.size, quantity: row.quantity}
     })
-
     style.skus = skuObj
+
   })
 
   return {product_id: id, results: styles}
 }
 
+const getRelated = async (id) => {
+  let relatedQuery = await pgClient.query(`SELECT related_product_id FROM related WHERE current_product_id = ${id}`)
+  let related = relatedQuery.rows.map(async relate => relate.related_product_id)
+
+  let relatedProducts = await Promise.all(related)
+  return relatedProducts
+}
+
 module.exports = {
   getProducts,
   getProduct,
-  getStyles
+  getStyles,
+  getRelated
 }

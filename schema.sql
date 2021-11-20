@@ -44,3 +44,29 @@ CREATE TABLE styles (
   original_price INTEGER,
   default_style INTEGER
 );
+
+CREATE INDEX style ON styles (
+  id,
+  productId,
+  name,
+  original_price,
+  sale_price,
+  default_style
+);
+
+CREATE INDEX photo ON photos (
+  styleId
+);
+
+CREATE INDEX sku ON skus (
+  id,
+  styleId,
+  size,
+  quantity
+);
+
+CREATE INDEX relateds ON related (
+  id,
+  current_product_id,
+  related_product_id
+);
