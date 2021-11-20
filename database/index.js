@@ -12,16 +12,14 @@ const getProducts = async () => {
 
 const getProduct = async (id) => {
 
-  let queryOne = await pgClient.query(`SELECT * FROM product WHERE id = ${id}`)
-  let queryTwo = await pgClient.query(`SELECT feature, value FROM features WHERE product_id = ${id}`)
+  let productQuery = await pgClient.query(`SELECT * FROM product WHERE id = ${id}`)
+  let featureQuery = await pgClient.query(`SELECT feature, value FROM features WHERE product_id = ${id}`)
 
-  let resultOne = await queryOne.rows
-  let resultTwo = await queryTwo.rows
+  let product = await productQuery.rows
+  let features = await featureQuery.rows
 
-  return [resultOne, resultTwo]
+  return [product, features]
 }
-
-
 
 const getStyles = async (id) => {
 
@@ -70,9 +68,14 @@ const getRelated = async (id) => {
   return relatedProducts
 }
 
+const close = () => {
+  return pgClient.end()
+}
+
 module.exports = {
   getProducts,
   getProduct,
   getStyles,
-  getRelated
+  getRelated,
+  close
 }
